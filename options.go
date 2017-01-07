@@ -12,7 +12,7 @@ func (opt BenchOptions) TestDesc() string {
 	return fmt.Sprintf("pre=%d-size=%d-batch=%d", opt.PrePrimeCount, opt.RecordSize, opt.BatchSize)
 }
 
-var DefaultBenchOpts = OptionsRange2pow(BenchOptions{1, 10 << 10, 64}, BenchOptions{1 << 20, 10 << 10, 64}, 11)
+var DefaultBenchOpts = OptionsRange2pow(BenchOptions{1, 10 << 10, 64}, BenchOptions{1 << 20, 10 << 10, 64}, 3)
 
 func OptionsRange2pow(start, end BenchOptions, countPerAxis int) []BenchOptions {
 	res := []BenchOptions{start}

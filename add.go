@@ -6,9 +6,9 @@ import (
 	ds "github.com/ipfs/go-datastore"
 )
 
-type StoreGen func() (ds.Datastore, error)
+type StoreGen func() (ds.Batching, error)
 
-func BenchAddAt(b *testing.B, store ds.Datastore, opt BenchOptions) {
+func BenchAddAt(b *testing.B, store ds.Batching, opt BenchOptions) {
 	PrimeDS(b, store, opt.PrePrimeCount, opt.RecordSize)
 	bufs := make([][]byte, b.N)
 	keys := make([]ds.Key, b.N)

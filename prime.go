@@ -7,8 +7,7 @@ import (
 	ds "github.com/ipfs/go-datastore"
 )
 
-func PrimeDS(tb testing.TB, store ds.Datastore, count, blockSize int) {
-
+func PrimeDS(tb testing.TB, store ds.Batching, count, blockSize int) {
 	buf := make([]byte, blockSize)
 	for i := 0; i < count; i++ {
 		_, err := rand.Read(buf)

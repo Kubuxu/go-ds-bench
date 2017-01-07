@@ -6,14 +6,14 @@ import (
 
 var CandidateMemoryMap = CandidateDatastore{
 	Name: "memory-map",
-	Create: func() (ds.Datastore, error) {
+	Create: func() (ds.Batching, error) {
 		return ds.NewMapDatastore(), nil
 	},
-	Destroy: func(ds.Datastore) {},
+	Destroy: func(ds.Batching) {},
 }
 
 type CandidateDatastore struct {
 	Name    string
-	Create  func() (ds.Datastore, error)
-	Destroy func(ds.Datastore)
+	Create  func() (ds.Batching, error)
+	Destroy func(ds.Batching)
 }
