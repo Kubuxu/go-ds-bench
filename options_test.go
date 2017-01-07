@@ -3,8 +3,8 @@ package main
 import "testing"
 
 func TestOptionsSimpleRange(t *testing.T) {
-	start := BenchOptions{1, 100}
-	end := BenchOptions{1 << 10, 100}
+	start := BenchOptions{1, 100, 64}
+	end := BenchOptions{1 << 10, 100, 64}
 
 	opts := OptionsRange2pow(start, end, 11)
 	if len(opts) != 11 {
@@ -18,8 +18,8 @@ func TestOptionsSimpleRange(t *testing.T) {
 	}
 }
 func TestOptionsBoth(t *testing.T) {
-	start := BenchOptions{1, 1}
-	end := BenchOptions{1 << 10, 1 << 10}
+	start := BenchOptions{1, 1, 64}
+	end := BenchOptions{1 << 10, 1 << 10, 64}
 
 	opts := OptionsRange2pow(start, end, 11)
 	if len(opts) != 11*11 {

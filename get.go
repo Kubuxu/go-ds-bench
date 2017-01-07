@@ -27,9 +27,9 @@ func BenchGetAt(b *testing.B, store ds.Datastore, opt BenchOptions) {
 	}
 }
 
-func BenchGetSeriesOf(b *testing.B, newStore StoreGen, opts []BenchOptions) {
+func BenchGetSeriesOf(b *testing.B, newStore CandidateDatastore, opts []BenchOptions) {
 	for _, opt := range opts {
-		store, err := newStore()
+		store, err := newStore.Create()
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -37,9 +37,10 @@ func BenchGetSeriesOf(b *testing.B, newStore StoreGen, opts []BenchOptions) {
 		b.Run(opt.TestDesc(), func(b *testing.B) {
 			BenchAddAt(b, store, opt)
 		})
+		newStore.Destroy(store)
 	}
 }
 
-func BenchGetSeriesDefault(b *testing.B, newStore StoreGen) {
+func BenchGetSeriesDefault(b *testing.B, newStore CandidateDatastore) {
 	BenchAddSeriesOf(b, newStore, DefaultBenchOpts)
 }
