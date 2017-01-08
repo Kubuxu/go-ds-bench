@@ -12,5 +12,7 @@ func BenchmarkAddTest(b *testing.B) {
 }
 
 func BenchmarkAddSeriesDefault(b *testing.B) {
-	BenchAddSeriesDefault(b, CandidateMemoryMap)
+	for _, c := range AllCandidates {
+		BenchAddSeriesDefault(b, c)
+	}
 }

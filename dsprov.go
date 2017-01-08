@@ -9,6 +9,13 @@ import (
 	bolt "github.com/whyrusleeping/bolt-datastore"
 )
 
+var AllCandidates = []CandidateDatastore{
+	CandidateMemoryMap,
+	CandidateFlatfs,
+	CandidateFlatfsNoSync,
+	CandidateBolt,
+}
+
 var CandidateMemoryMap = CandidateDatastore{
 	Name: "memory-map",
 	Create: func() (ds.Batching, error) {
@@ -55,7 +62,7 @@ var CandidateFlatfs = CandidateDatastore{
 			return nil, err
 		}
 
-		return flatfs.New(dir, 2, true)
+		return flatfs.New(dir, flatfs.Prefix(2), true)
 	},
 	Destroy: func(b ds.Batching) {
 	},
@@ -76,7 +83,7 @@ var CandidateFlatfsNoSync = CandidateDatastore{
 			return nil, err
 		}
 
-		return flatfs.New(dir, 2, false)
+		return flatfs.New(dir, flatfs.Prefix(2), false)
 	},
 	Destroy: func(b ds.Batching) {
 	},
