@@ -9,6 +9,9 @@ import (
 	bolt "github.com/whyrusleeping/bolt-datastore"
 )
 
+func emptyDtor(ds.Batching) {
+}
+
 var AllCandidates = []CandidateDatastore{
 	CandidateMemoryMap,
 	CandidateFlatfs,
@@ -21,7 +24,7 @@ var CandidateMemoryMap = CandidateDatastore{
 	Create: func() (ds.Batching, error) {
 		return ds.NewMapDatastore(), nil
 	},
-	Destroy: func(ds.Batching) {},
+	Destroy: emptyDtor,
 }
 
 var CandidateBolt = CandidateDatastore{
@@ -47,9 +50,8 @@ var CandidateBolt = CandidateDatastore{
 	},
 }
 
-var CandidateFlatfs = CandidateDatastore{
-	Name: "flatfs",
-	Create: func() (ds.Batching, error) {
+func flatfsCtor(sync bool) func() (ds.Batching, error) {
+	return func() (ds.Batching, error) {
 		os.Mkdir("flatfs", 0775)
 
 		dir, err := ioutil.TempDir("flatfs", "bench")
@@ -62,31 +64,20 @@ var CandidateFlatfs = CandidateDatastore{
 			return nil, err
 		}
 
-		return flatfs.New(dir, flatfs.Prefix(2), true)
-	},
-	Destroy: func(b ds.Batching) {
-	},
+		return flatfs.New(dir, flatfs.Prefix(2), sync)
+	}
+}
+
+var CandidateFlatfs = CandidateDatastore{
+	Name:    "flatfs",
+	Create:  flatfsCtor(true),
+	Destroy: emptyDtor,
 }
 
 var CandidateFlatfsNoSync = CandidateDatastore{
-	Name: "flatfs-nosync",
-	Create: func() (ds.Batching, error) {
-		os.Mkdir("flatfs", 0775)
-
-		dir, err := ioutil.TempDir("flatfs", "bench")
-		if err != nil {
-			return nil, err
-		}
-
-		err = os.MkdirAll(dir, 0775)
-		if err != nil {
-			return nil, err
-		}
-
-		return flatfs.New(dir, flatfs.Prefix(2), false)
-	},
-	Destroy: func(b ds.Batching) {
-	},
+	Name:    "flatfs-nosync",
+	Create:  flatfsCtor(false),
+	Destroy: emptyDtor,
 }
 
 type CandidateDatastore struct {
