@@ -6,22 +6,14 @@ import (
 	ds "github.com/ipfs/go-datastore"
 )
 
-func BenchAddBatchAt(b *testing.B, store ds.Batching, opt BenchOptions) {
-	PrimeDS(b, store, opt.PrePrimeCount, opt.RecordSize)
-	bufs := make([][]byte, b.N)
-	keys := make([]ds.Key, b.N)
-	for i := 0; i < b.N; i++ {
-		bufs[i] = RandomBuf(opt.RecordSize)
-		keys[i] = ds.RandomKey()
-	}
-
-	b.ResetTimer()
+func BenchAddBatchAt(b *testing.B, store ds.Batching, opt BenchOptions, keys []ds.Key, bufs [][]byte) {
+	//PrimeDS(b, store, opt.PrePrimeCount, opt.RecordSize)
 	batch, err := store.Batch()
 	if err != nil {
 		b.Fatal(err)
 	}
 	for i := 0; i < b.N; i++ {
-		batch.Put(keys[i], bufs[i])
+		err := batch.Put(keys[i], bufs[i])
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -37,11 +29,10 @@ func BenchAddBatchAt(b *testing.B, store ds.Batching, opt BenchOptions) {
 			}
 		}
 	}
-	batch, err = store.Batch()
+	err = batch.Commit()
 	if err != nil {
 		b.Fatal(err)
 	}
-
 }
 
 func BenchAddBatchSeriesOf(b *testing.B, newStore CandidateDatastore, opts []BenchOptions) {
@@ -51,8 +42,15 @@ func BenchAddBatchSeriesOf(b *testing.B, newStore CandidateDatastore, opts []Ben
 			b.Fatal(err)
 		}
 
-		b.Run(opt.TestDesc(), func(b *testing.B) {
-			BenchAddAt(b, store, opt)
+		var keys []ds.Key
+		var bufs [][]byte
+
+		b.Run(newStore.Name+"/"+opt.TestDesc(), func(b *testing.B) {
+			for len(keys) < b.N {
+				bufs = append(bufs, RandomBuf(opt.RecordSize))
+				keys = append(keys, ds.RandomKey())
+			}
+			BenchAddBatchAt(b, store, opt, keys, bufs)
 		})
 		newStore.Destroy(store)
 	}
