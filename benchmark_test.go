@@ -4,6 +4,6 @@ import "testing"
 
 func BenchmarkAddBatchAll(b *testing.B) {
 	for _, candi := range AllCandidates {
-		BenchAddBatchSeriesOf(b, candi, []BenchOptions{{0, 10 << 10, 128}})
+		BenchAddBatchSeriesOf(b, candi, []BenchOptions{{0, 256 << 10, 128}})
 	}
 }
