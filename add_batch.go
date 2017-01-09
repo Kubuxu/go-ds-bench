@@ -1,6 +1,7 @@
 package main
 
 import (
+	"syscall"
 	"testing"
 
 	ds "github.com/ipfs/go-datastore"
@@ -8,6 +9,8 @@ import (
 
 func BenchAddBatchAt(b *testing.B, store ds.Batching, opt BenchOptions, keys []ds.Key, bufs [][]byte) {
 	//PrimeDS(b, store, opt.PrePrimeCount, opt.RecordSize)
+	b.ResetTimer() // reset timer, this is start of real test
+
 	batch, err := store.Batch()
 	if err != nil {
 		b.Fatal(err)
@@ -50,6 +53,7 @@ func BenchAddBatchSeriesOf(b *testing.B, newStore CandidateDatastore, opts []Ben
 				bufs = append(bufs, RandomBuf(opt.RecordSize))
 				keys = append(keys, ds.RandomKey())
 			}
+			syscall.Sync()
 			BenchAddBatchAt(b, store, opt, keys, bufs)
 		})
 		newStore.Destroy(store)
