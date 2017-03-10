@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	fsbs "github.com/ipfs/fsbs"
 	ds "github.com/ipfs/go-datastore"
 	flatfs "github.com/ipfs/go-ds-flatfs"
 	bolt "github.com/whyrusleeping/bolt-datastore"
@@ -14,9 +15,10 @@ func emptyDtor(ds.Batching) {
 
 var AllCandidates = []CandidateDatastore{
 	CandidateMemoryMap,
+	CandidateFsbs,
+	CandidateBolt,
 	CandidateFlatfs,
 	CandidateFlatfsNoSync,
-	CandidateBolt,
 }
 
 var CandidateMemoryMap = CandidateDatastore{
@@ -50,6 +52,30 @@ var CandidateBolt = CandidateDatastore{
 	},
 }
 
+var CandidateFsbs = CandidateDatastore{
+	Name: "fsbs",
+	Create: func() (ds.Batching, error) {
+
+		os.Mkdir("fsbs", 0775)
+		dir, err := ioutil.TempDir("fsbs", "bench")
+		if err != nil {
+			return nil, err
+		}
+
+		err = os.MkdirAll(dir, 0775)
+		if err != nil {
+			return nil, err
+		}
+
+		return fsbs.NewFsbsDS(dir)
+
+	},
+
+	Destroy: func(b ds.Batching) {
+		os.Remove(b.(*fsbs.Fsbsds).Path)
+	},
+}
+
 func flatfsCtor(sync bool) func() (ds.Batching, error) {
 	return func() (ds.Batching, error) {
 		os.Mkdir("flatfs", 0775)
@@ -64,7 +90,7 @@ func flatfsCtor(sync bool) func() (ds.Batching, error) {
 			return nil, err
 		}
 
-		return flatfs.New(dir, flatfs.Prefix(2), sync)
+		return flatfs.CreateOrOpen(dir, flatfs.NextToLast(2), sync)
 	}
 }
 
