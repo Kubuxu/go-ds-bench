@@ -41,7 +41,6 @@ func BenchAddBatchAt(b *testing.B, store ds.Batching, opt BenchOptions, keys []d
 
 func BenchAddBatchSeriesOf(b *testing.B, newStore CandidateDatastore, opts []BenchOptions) {
 	for _, opt := range opts {
-		syscall.Sync()
 		store, err := newStore.Create()
 		if err != nil {
 			b.Fatal(err)
@@ -55,9 +54,10 @@ func BenchAddBatchSeriesOf(b *testing.B, newStore CandidateDatastore, opts []Ben
 				bufs = append(bufs, RandomBuf(opt.RecordSize))
 				keys = append(keys, ds.RandomKey())
 			}
+			syscall.Sync()
 			BenchAddBatchAt(b, store, opt, keys, bufs)
-			newStore.Destroy(store)
 		})
+		newStore.Destroy(store)
 	}
 }
 
