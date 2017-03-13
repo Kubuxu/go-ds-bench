@@ -57,6 +57,7 @@ func BenchAddBatchSeriesOf(b *testing.B, newStore CandidateDatastore, opts []Ben
 			}
 			BenchAddBatchAt(b, store, opt, keys, bufs)
 			newStore.Destroy(store)
+			syscall.Sync()
 		})
 	}
 }
