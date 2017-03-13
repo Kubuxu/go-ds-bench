@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"syscall"
 
 	fsbs "github.com/ipfs/fsbs"
 	ds "github.com/ipfs/go-datastore"
@@ -94,16 +95,20 @@ func flatfsCtor(sync bool) func() (ds.Batching, error) {
 	}
 }
 
+func syncDtor(d ds.Batching) {
+	syscall.Sync()
+}
+
 var CandidateFlatfs = CandidateDatastore{
 	Name:    "flatfs",
 	Create:  flatfsCtor(true),
-	Destroy: emptyDtor,
+	Destroy: syncDtor,
 }
 
 var CandidateFlatfsNoSync = CandidateDatastore{
 	Name:    "flatfs-nosync",
 	Create:  flatfsCtor(false),
-	Destroy: emptyDtor,
+	Destroy: syncDtor,
 }
 
 type CandidateDatastore struct {
