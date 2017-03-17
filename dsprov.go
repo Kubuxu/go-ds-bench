@@ -4,9 +4,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	fsbs "github.com/ipfs/fsbs"
 	ds "github.com/ipfs/go-datastore"
 	flatfs "github.com/ipfs/go-ds-flatfs"
+	sbs "github.com/ipfs/go-sbs"
 	bolt "github.com/whyrusleeping/bolt-datastore"
 )
 
@@ -53,11 +53,11 @@ var CandidateBolt = CandidateDatastore{
 }
 
 var CandidateFsbs = CandidateDatastore{
-	Name: "fsbs",
+	Name: "sbs",
 	Create: func() (ds.Batching, error) {
 
-		os.Mkdir("fsbs", 0775)
-		dir, err := ioutil.TempDir("fsbs", "bench")
+		os.Mkdir("sbs", 0775)
+		dir, err := ioutil.TempDir("sbs", "bench")
 		if err != nil {
 			return nil, err
 		}
@@ -67,12 +67,12 @@ var CandidateFsbs = CandidateDatastore{
 			return nil, err
 		}
 
-		return fsbs.NewFsbsDS(dir)
+		return sbs.NewSbsDS(dir)
 
 	},
 
 	Destroy: func(b ds.Batching) {
-		os.Remove(b.(*fsbs.Fsbsds).Path)
+		os.Remove(b.(*sbs.Sbsds).Path)
 	},
 }
 
